@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pid.sqlmap.mappers.Members_SQL">
+	<resultMap type="members" id="membersResult">
+		<result property="memberId" column="memberId" />
+		<result property="memberPassword" column="memberPassword" />
+		<result property="memberCheckPassword" column="memberCheckPassword" />
+		<result property="memberName" column="memberName" />
+		<result property="memberNickname" column="memberNickname" />
+		<result property="memberResident" column="memberResident" />
+		<result property="memberAddress" column="memberAddress" />
+		<result property="memberTelNumber" column="memberTelNumber" />
+		<result property="memberSignDate" column="memberSignDate" />
+		<result property="memberGrade" column="memberGrade" />
+		<result property="memberRole" column="memberRole" />
+		<result property="memberEtc" column="memberEtc" />
+	</resultMap>
+	
+	<select id="memberId_check" resultType="int">
+		SELECT COUNT(*) FROM members WHERE memberID=#{memberId}
+	</select>
+	
+	<select id="memberNickname_check" resultType="int">
+		SELECT COUNT(*) FROM members WHERE memberNickname=#{memberNickname}
+	</select>
+	
+	<select id="memberTelNumber_check" resultType="int">
+		SELECT COUNT(*) FROM members WHERE memberTelNumber=#{memberTelNumber}
+	</select> 
+		
+	<select id="memberNickname" resultType="String">
+		select memberNickname from members where memberId=#{memberId}
+	</select>
+	
+	<select id="memberTelNumber" resultType="String">
+		select memberTelNumber from members where memberId=#{memberId}
+	</select>
+	
+	<select id="memberGrade" resultType="String">
+		select memberGrade from members where memberId=#{memberId}
+	</select>
+		
+	<insert id="signUpMember">
+		insert into members	(memberId, memberPassword, memberCheckPassword, memberName, memberNickname, memberResident, memberAddress, memberTelNumber)
+		values(#{memberId},#{memberPassword},#{memberCheckPassword},#{memberName},#{memberNickname},#{memberResident},#{memberAddress},#{memberTelNumber})	
+	</insert>
+	
+	<select id="loginMember" resultType="int">
+		select count(*) from members where memberId=#{memberId} and memberPassword=#{memberPassword}
+	</select>
+	
+	<select id="selectMember" resultMap="membersResult">
+		SELECT * FROM members WHERE memberId=#{memberId}
+	</select>
+	
+	<update id="modifyMemberPassword">
+		UPDATE members SET memberPassword=#{memberPassword}, memberCheckPassword=#{memberCheckPassword} WHERE memberId=#{memberId}
+	</update>
+	
+	<update id="modifyMemberNickname">
+		UPDATE members SET memberNickname=#{memberNickname} WHERE memberId=#{memberId}
+	</update>
+	
+	<update id="modifyMemberTelNumber">
+		UPDATE members SET memberTelNumber=#{memberTelNumber} WHERE memberId=#{memberId}
+	</update>
+
+	<select id="unSignUpMember_check" resultType="int">
+		select count(*) from members where memberId=#{memberId} and memberPassword=#{memberPassword}
+	</select>
+	
+	<delete id="unSignUpMember">
+		delete from members where memberId=#{memberId}
+	</delete>
+	
+	<select id="findMemberId" resultType="String">
+		SELECT memberId FROM members WHERE memberName=#{memberName} AND memberResident=#{memberResident} AND memberTelNumber=#{memberTelNumber}
+	</select>
+	
+	<update id="findMemberPassword1">
+		UPDATE members SET memberPassword=#{memberPassword}, memberCheckPassword=#{memberCheckPassword} WHERE memberId=#{memberId}
+	</update>
+	
+	<select id="findMemberPassword2" resultType="int">
+		select count(*) from members where memberId=#{memberId} and memberTelNumber=#{memberTelNumber}
+	</select>
+	
+	<select id="selectMembers" resultMap="membersResult">
+		select * from members where memberId not in ('admin')
+		<if test="searchCondition=='MEMBERID'">
+			AND MEMBERID LIKE CONCAT('%',#{searchKeyword},'%')
+		</if>
+		<if test="searchCondition=='MEMBERNAME'">
+			AND MEMBERNAME LIKE CONCAT('%',#{searchKeyword},'%')
+		</if>
+		<if test="searchCondition=='MEMBERGRADE'">
+			AND MEMBERGRADE LIKE CONCAT('%',#{searchKeyword},'%')
+		</if>
+		order by memberSignDate asc
+	</select>
+	
+	<select id="selectMemberId" resultMap="membersResult">
+	    SELECT m.memberId FROM members m join board b ON m.memberId = b.memberId WHERE b.boardNo = #{boardNo} 
+	</select>
+	
+	<update id="modifyMemberGrade">
+		update members Set memberGrade=#{memberGrade} where memberId=#{memberId}
+	</update>
+	
+	<select id="totalMembers" resultType="int">
+		select count(*) from members
+	</select>
+</mapper>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+        http://www.springframework.org/schema/jdbc  http://www.springframework.org/schema/jdbc/spring-jdbc-4.0.xsd">
+
+    <bean id="hikariConfig" class="com.zaxxer.hikari.HikariConfig">
+		<!-- <property name="driverClassName" value="org.mariadb.jdbc.Driver"></property> -->
+		<!-- <property name="jdbcUrl" value="jdbc:mariadb://localhost:3306/test"></property> -->
+		<property name="driverClassName" value="net.sf.log4jdbc.sql.jdbcapi.DriverSpy"></property>
+		<property name="jdbcUrl" value="jdbc:log4jdbc:mariadb://localhost:3306/team3"></property>
+		<property name="username" value="team3"></property>
+		<property name="password" value="1234"></property>
+		<property name="maximumPoolSize" value="5"></property>
+		<!-- hikaricp pool size -->
+		<!--   maxLifetime = 1000L
+        connectionTimeout = 3000L
+        leakDetectionThreshold = 10000L -->
+	</bean>
+	
+	<bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
+		<constructor-arg ref="hikariConfig"></constructor-arg>
+	</bean>
+</beans>

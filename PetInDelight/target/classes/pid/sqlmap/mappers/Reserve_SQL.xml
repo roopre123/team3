@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="pid.sqlmap.mappers.Reserve_SQL">
+
+	<resultMap type="room" id="roomResult">
+		<result property="roomNo" column="roomNo" />
+		<result property="price" column="price" />
+		<result property="count" column="count" />
+		<result property="picturePath" column="picturePath" />
+	</resultMap>
+	
+	
+	<resultMap type="reserve" id="reserveResult">
+		<result property="reserveNo" column="reserveNo" />
+		<result property="roomNo" column="roomNo" />
+		<result property="reserveStartDate" column="reserveStartDate" />
+		<result property="reserveEndDate" column="reserveEndDate" />
+		<result property="count" column="count" />
+		<result property="memberId" column="memberId" />
+		<result property="reserveType" column="reserveType" />
+		<result property="price" column="price" />
+		<result property="reqContent" column="reqContent" />
+	</resultMap>
+
+	<select id="searchRoom" resultMap="roomResult">
+		select * from room where
+		roomNo not in (select roomNo from reserve
+		where
+		(#{reserveStartDate}
+		between reserveStartDate and
+		date_add(reserveEndDate, interval -1
+		DAY)or (#{reserveEndDate} between
+		date_add(reserveStartDate, interval
+		+1 DAY) and reserveEndDate)) and reserveType="Y") and
+		count >= #{count}
+	</select>
+
+	<select id="roomInformation" resultMap="roomResult">
+		select * from room where roomNo = #{roomNo}
+	</select>
+	<!-- ReserveVO(reserveNo=0, roomNo=72, reserveStartDate=Mon Sep 19 00:00:00 KST 2022, reserveEndDate=Wed Sep 21 00:00:00 KST 2022, count=1, memberId=123, price=60000, reqContent=ㅁㅁㅁㅁ) -->
+	<insert id="insertReserve">
+		insert into reserve (roomNo, reserveStartDate, reserveEndDate, count, memberId, price, reserveType , reqContent)
+		values(#{roomNo}, #{reserveStartDate}, #{reserveEndDate}, #{count}, #{memberId}, #{price}, "Y", #{reqContent} )
+	</insert>
+	
+	<select id="lastInsertReserve" resultMap="reserveResult">
+		select * from reserve where memberId = #{memberId} order by reserveNo desc limit 1;
+	</select>
+	
+	<select id="reserveList" resultMap="reserveResult">
+		select * from reserve where memberId = #{memberId} order by reserveNo desc;
+	</select>
+	
+	<select id="checkReserveNo" resultMap="reserveResult">
+		select * from reserve where reserveNo = #{reserveNo}
+	</select>
+	
+	<update id="reserveCancle">
+		update reserve set reserveType = "C" where reserveNo = #{reserveNo}
+	</update>
+	
+	<select id="reserveListAll" resultMap="reserveResult">
+		select * from reserve where 1=1
+		<if test="searchCondition=='RESERVENO'">
+			AND RESERVENO LIKE CONCAT('%',#{searchKeyword},'%')
+		</if>
+		<if test="searchCondition=='ROOMNO'">
+			AND ROOMNO=#{searchKeyword}
+		</if>
+		<if test="searchCondition=='MEMBERID'">
+			AND MEMBERID LIKE CONCAT('%',#{searchKeyword},'%')
+		</if>
+		<if test="searchCondition=='RESERVETYPE'">
+			AND RESERVETYPE LIKE CONCAT('%',#{searchKeyword},'%')
+		</if>
+		order by reserveNo desc;
+	</select>
+	
+	<select id="totalReserve" resultType="int">
+		select count(*) from reserve
+	</select>
+	
+	<update id="checkIn">
+		UPDATE reserve SET reserveType="I" WHERE reserveNo=#{reserveNo}
+	</update>
+	
+	<update id="checkOut">
+		UPDATE reserve SET reserveType="O" WHERE reserveNo=#{reserveNo}
+	</update>
+</mapper>

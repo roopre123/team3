@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pid.sqlmap.mappers.ReplyQnABoard_SQL">
+   <resultMap type="replyQnABoard" id="replyQnABoardResult">
+      <result property="replyQnABoardNo" column="replyQnABoardNo" />
+      <result property="content" column="content" />
+      <result property="wdate" column="wdate" />
+      <result property="boardNo" column="boardNo" />
+      <result property="memberId" column="memberId" />
+      <result property="memberNickname" column="memberNickname" />
+   </resultMap>    
+   
+   <select id="replyQnABoardList" resultMap="replyQnABoardResult">
+      select * from replyQnABoard 
+   </select>
+
+   <select id="selectReplyQnABoard" resultMap="replyQnABoardResult">
+      select * from replyQnABoard where replyQnABoardNo = #{replyQnABoardNo} 
+   </select>
+
+   <select id="maxReplyQnABoardNo" resultType="int">
+      SELECT MAX(boardNo) FROM board where boardType like '%QnA%'
+   </select>
+
+   <select id="minReplyQnABoardNo" resultType="int">
+      SELECT MIN(boardNo) FROM board where boardType like '%QnA%'
+   </select>
+
+   <insert id="insertReplyQnA">
+      insert into replyQnABoard values(null,#{content},now(),#{boardNo},#{memberId},#{memberNickname})
+   </insert>
+   
+   <delete id="replyDel">
+   	  delete from replyQnABoard where replyQnABoardNo = #{replyQnABoardNo}
+   </delete>
+   
+   <update id="upReply">
+      update replyQnABoard set content = #{content} where replyQnABoardNo = #{replyQnABoardNo}
+   </update>
+</mapper>

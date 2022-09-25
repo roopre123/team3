@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pid.sqlmap.mappers.ReviewBoard_SQL">
+   <resultMap type="reviewboard" id="boardResult">
+      <result property="boardNo" column="boardNo" />
+      <result property="title" column="title" />
+      <result property="content" column="content" />
+      <result property="wdate" column="wdate" />
+      <result property="boardType" column="boardType" />
+      <result property="memberId" column="memberId" />
+      <result property="memberNickname" column="memberNickname" />
+      <result property="reviewPicturePath" column="reviewPicturePath" />
+      <result property="countingStars" column="countingStars" />   
+   </resultMap>
+    
+   
+   	<resultMap type="members" id="membersResult">
+		<result property="memberId" column="memberId" />
+		<result property="memberPassword" column="memberPassword" />
+		<result property="memberCheckPassword" column="memberCheckPassword" />
+		<result property="memberName" column="memberName" />
+		<result property="memberNickname" column="memberNickname" />
+		<result property="memberResident" column="memberResident" />
+		<result property="memberAddress" column="memberAddress" />
+		<result property="memberTelNumber" column="memberTelNumber" />
+		<result property="memberSignDate" column="memberSignDate" />
+		<result property="memberGrade" column="memberGrade" />
+		<result property="memberRole" column="memberRole" />
+		<result property="memberEtc" column="memberEtc" />
+	</resultMap>
+	
+	
+	
+	<resultMap type="reserve" id="reserveResult">
+		<result property="reserveNo" column="reserveNo" />
+		<result property="roomNo" column="roomNo" />
+		<result property="reserveStartDate" column="reserveStartDate" />
+		<result property="reserveEndDate" column="reserveEndDate" />
+		<result property="count" column="count" />
+		<result property="memberId" column="memberId" />
+		<result property="reserveType" column="reserveType" />
+		<result property="price" column="price" />
+		<result property="reqContent" column="reqContent" />
+	</resultMap>
+	
+	<select id="reserveReview" resultMap="reserveResult" >
+		SELECT * FROM reserve WHERE reserveNo=#{reserveNo}
+	</select>
+
+	<update id="reserveReviewWrite">
+		UPDATE reserve SET reserveType="R" WHERE reserveNo=#{reserveNo}
+	</update>
+
+   <!-- 글 삽입 -->
+   <insert id="insertReviewBoard">INSERT INTO board(title, content, wdate, boardType,
+      memberId, memberNickname,reviewPicturePath, countingStars)VALUES(#{title},#{content},NOW(),#{boardType},
+      #{memberId}, #{memberNickname}, #{reviewPicturePath} ,#{countingStars}) 
+   </insert>
+
+	<select id="selectBoardMem" resultMap="membersResult">
+		select * from members where memberId=#{memberId}
+	
+	</select>
+
+
+   <!-- 글 리스트 조회 + 검색 -->
+   <select id="selectReviewList" resultMap="boardResult">
+      select boardNo, boardType, title, memberId, memberNickname, wdate, countingStars from board
+      <where>
+         <if test="searchCondition=='TITLE'">AND TITLE LIKE CONCAT('%',#{searchKeyword},'%')AND
+            boardType="Review" </if>
+         <if test="searchCondition=='CONTENT'">AND CONTENT LIKE CONCAT('%',#{searchKeyword},'%')AND
+            boardType="Review" </if>
+      </where>
+      order by boardNo desc LIMIT #{startIndex}, #{endIndex}
+   </select>
+
+	<!-- 총 갯수 -->
+   <select id="totalReview" resultType="int">select count(*) from board
+      where boardType="Review" 
+   </select>
+
+   <!-- 글 1개 조회 -->
+   <select id="selectReview" resultMap="boardResult">
+      select *FROM board WHERE boardNo=#{boardNo} 
+   </select>
+
+   <!-- 이전글 -->
+   <select id="beforeReview" resultMap="boardResult">
+      <![CDATA[
+         SELECT * 
+         FROM board 
+         where boardNo<#{boardNo} and boardType="Review" 
+         ORDER BY boardNo DESC LIMIT 1
+      ]]>
+   </select>
+
+   <!-- 다음글 -->
+   <select id="afterReview" resultMap="boardResult">
+      <![CDATA[
+         SELECT * 
+         FROM board 
+         where boardNo>#{boardNo} and boardType="Review" 
+         ORDER BY boardNo LIMIT 1
+      ]]>
+   </select>
+
+   <!-- 최대값 -->
+   <select id="maxReview" resultType="int">
+      <![CDATA[
+         SELECT max(boardNo) FROM board WHERE boardType="Review"
+      ]]>
+   </select>
+
+   <!-- 최소값 -->
+   <select id="minReview" resultType="int">
+      <![CDATA[
+         SELECT min(boardNo) FROM board WHERE boardType="Review"
+      ]]>
+   </select>
+
+   <!-- 삭제 -->
+   <delete id="deleteReview">
+      DELETE from board WHERE boardNo=#{boardNo}
+   </delete>
+
+   <!-- 수정 -->
+   <update id="updateReview">
+      UPDATE board SET title=#{title},content=#{content}, countingStars=#{countingStars}, reviewPicturePath = #{reviewPicturePath} WHERE boardNo=#{boardNo}
+   </update>
+   
+   <select id="totalStars" resultType="double">
+   		SELECT round(SUM(countingStars)/COUNT(*),1) FROM board WHERE boardType="Review"
+   </select>
+</mapper>

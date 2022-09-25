@@ -1,0 +1,148 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
+<!DOCTYPE html>
+<html>
+<link rel="stylesheet"	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+<head>
+<meta charset="UTF-8" http-equiv="Content-Type" name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://code.jquery.com/jquery-3.4.1.js"></script>
+<style>
+.btn{
+	background-color: #FFA500;
+	color: white;
+}
+.btn:hover{
+	background-color: #FFA500;
+	color: white;
+}
+html {
+height: 100%;
+}
+body {
+margin: 0;
+height: 100%;
+}
+.a {
+min-height: 100%;
+}
+</style>
+<title>QnA 게시판</title>
+</head>
+<body>
+<jsp:include page="../header.jsp"></jsp:include>
+<div class="a">
+
+<div class="container">
+	<div class="page-header">
+		<div class="pull-left">
+		<h1>QnA 게시판</h1>			
+		</div>
+		<div class="pull-right"><br>
+		<c:if test="${SessionMemberId ne null}">
+			<span><input type="button" onclick="location.href='myQuestion.do?memberId=${SessionMemberId}'" class="btn" value="내 글보기"/></span>		
+			<span><input type="button" onclick="location.href='insert.do?memberId=${SessionMemberId}'" class="btn" value="등록"/></span>
+			
+		</c:if>
+		</div>		
+	</div>
+	<br/>
+
+	<form action="freeboard.do">
+		<table class="table">
+		<tr>
+			<td align="right">
+				<select name="searchCondition" >
+					<c:forEach items="${conditionMap}" var="option">
+						<option value="${option.value}">${option.key}
+					</c:forEach>
+				</select>
+				<input name="searchKeyword" type="text"/>
+				<input type="submit" class="btn" value="검색"/>
+			</td>
+		</tr>
+		</table>
+	</form>
+		
+	<div id="mainHide">
+		<table class="table table-hover" >
+			<thead>
+				<tr>
+					<th scope="col" width="50">글번호</th>
+					<th scope="col" width="100">게시글타입</th>
+					<th scope="col" width="100">제목</th>
+					<th scope="col" width="100">작성자</th>
+					<th scope="col" width="100">작성일</th>
+					<th scope="col" width="100"></th>
+				</tr>
+			</thead>
+			<tbody>
+				<c:forEach var="board" items="${boardList}">
+					<c:set var="title" value="${board.title}"/>
+					<c:set var="titleView" value="${fn:substring(title,0,12) }"/>
+					
+					<tr>
+						<td><a href="reviewBoard.do?boardNo=${board.boardNo}">${board.boardNo}</a></td>
+						<td>${board.boardType}</td>
+						<td><a href="QnAView.do?boardNo=${board.boardNo}">
+						<c:choose>
+							<c:when test="${titleView.length()<12}">
+								${titleView}
+							</c:when>
+							<c:otherwise>
+								${titleView}...
+							</c:otherwise>
+						</c:choose>
+						</a></td>
+						<td>${board.memberNickname}</td>
+						<td><fmt:formatDate value="${board.wdate}" pattern="yyyy-MM-dd HH:mm"/></td>
+						<td></td>
+					</tr>
+					
+						<c:forEach var="replyQnABoard" items="${replyQnABoardList}">
+						<c:if test="${replyQnABoard.boardNo eq board.boardNo}">
+							<tr>
+								<td></td>
+								<td colspan="2">&#10551;<a
+									href="replyQnABoard.do?replyQnABoardNo=${replyQnABoard.replyQnABoardNo}&boardNo=${board.boardNo}">
+									RE: '${board.title}' / '${board.memberNickname}'님 께서 문의 주신 내용입니다.</a></td>
+								<td>${replyQnABoard.memberNickname}</td>
+								<td><fmt:formatDate value="${replyQnABoard.wdate}" pattern="yyyy-MM-dd HH:mm"/></td>
+								<td></td>
+							</tr>
+						</c:if>
+					</c:forEach>
+				</c:forEach>
+
+			</tbody>
+		</table>
+			<div>
+				<nav aria-label="Page navigation" style="text-align: center;">
+					<div style="text-align: center">
+						<ul class="pagination">
+							<c:if test="${firstPage > pageList}">
+								<li><a href="freeboard.do?viewPage=${firstPage - pageList}">이전</a></li>
+							</c:if>
+							<c:forEach var="i" begin="${firstPage}" end="${lastPage}">
+								<li><a href="freeboard.do?viewPage=${i}">${i}</a></li> 
+							</c:forEach>
+							<c:if test="${lastPage < totalPage}">
+								<li><a href="freeboard.do?viewPage=${firstPage + pageList}">다음</a></li>
+							</c:if>
+						</ul>
+					</div>
+				</nav>
+			</div>
+		</div>
+	<div class="pull-left">
+		<input type="button" class="btn" onclick="location='main.do'" value="메인으로"/>
+	</div>
+</div>	
+</div>
+<div id="footer" align="center">
+<jsp:include page="../footer.jsp"></jsp:include>
+</div>
+</body>
+</html>

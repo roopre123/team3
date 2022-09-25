@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>  
+    <typeAliases>
+		<typeAlias type="pid.members.service.MembersVO" alias="members" />
+		<typeAlias type="pid.reviewBoard.service.BoardVO" alias="reviewboard"/>
+		<typeAlias type="pid.qnaBoard.service.BoardVO" alias="qnaboard"/>
+		<typeAlias type="pid.qnaBoard.service.ReplyQnABoardVO" alias="replyQnABoard"/>
+		<typeAlias type="pid.reserve.service.RoomVO" alias="room"/>
+		<typeAlias type="pid.reserve.service.ReserveVO" alias="reserve"/>
+    </typeAliases>
+</configuration> 
